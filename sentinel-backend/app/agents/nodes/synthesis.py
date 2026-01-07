@@ -1,4 +1,4 @@
-from app.services.llm_service import synthesize
+from app.services.llm import synthesize
 
 async def synthesize_response(state: dict) -> dict:
     context = "\n".join(state["retrieved_docs"])

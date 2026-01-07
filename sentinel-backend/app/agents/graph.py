@@ -1,3 +1,5 @@
+# graph builder
+
 from langgraph.graph import StateGraph, END
 from app.agents.state import VendorGraphState
 from app.agents.nodes.ingestion import ingest_vendor
@@ -6,8 +8,7 @@ from app.agents.nodes.reasoning import reason_over_context
 from app.agents.nodes.guardrails import guardrail_check
 from app.agents.nodes.synthesis import synthesize_response
 from app.agents.nodes.review import human_review
-from app.persistence.vendor_state import load_latest_vendor_state, persist_vendor_state, record_agent_run
-
+from app.api.escalations import escalation_router
 
 def build_graph():
     graph = StateGraph(VendorGraphState)
@@ -24,10 +25,19 @@ def build_graph():
     graph.add_edge("ingest", "retrieve")
     graph.add_edge("retrieve", "reason")
     graph.add_edge("reason", "guardrails")
-    graph.add_edge("guardrails", "synthesize")
-    graph.add_edge("synthesize", "review")
+
+    graph.add_conditional_edges(
+        "guardrails",
+        escalation_router,
+        {
+            "review": "review",
+            "synthesize": "synthesize",
+        }
+    )
+
+    graph.add_edge("synthesize", END)
     graph.add_edge("review", END)
 
     return graph.compile()
 
-vendor_graph = build_graph()
+executor = build_graph()

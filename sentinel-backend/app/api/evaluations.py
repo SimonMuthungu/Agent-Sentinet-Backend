@@ -1,16 +1,13 @@
 from fastapi import APIRouter
 from app.domain.schemas import EvaluationRequest
-from app.agents.graph import vendor_graph
+from app.agents.graph_runner import run_vendor_evaluation
 
 router = APIRouter()
 
 @router.post("/")
 async def evaluate_vendor(req: EvaluationRequest):
-    result = await vendor_graph.ainvoke({
-        "vendor_id": req.vendor_id,
-        "vendor_name": "Unknown Vendor",
-        "retrieved_docs": [],
-        "final_assessment": ""
-    })
-
+    result = await run_vendor_evaluation(
+        vendor_id=req.vendor_id,
+        query=req.query
+    )
     return result

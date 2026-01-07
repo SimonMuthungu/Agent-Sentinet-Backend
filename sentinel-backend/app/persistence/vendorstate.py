@@ -1,4 +1,4 @@
-from app.persistence.supabase import supabase
+from app.persistence.db import supabase
 from typing import Dict, Any
 import uuid
 

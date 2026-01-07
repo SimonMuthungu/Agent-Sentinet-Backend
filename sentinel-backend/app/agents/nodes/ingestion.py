@@ -1,6 +1,6 @@
-from app.observability.logger import logger
+from app.observability.logging import logger
 
-logger.info("Running retrieval node", extra={"vendor_id": state["vendor_id"]})
+logger.info("Running retrieval node")
 
 
 async def ingest_vendor(state: dict) -> dict:

@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Settings:
     PROJECT_NAME = "Sentinel"
@@ -8,7 +10,7 @@ class Settings:
     SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
     PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-    PINECONE_INDEX = os.getenv("PINECONE_INDEX", "sentinel-vendors")
+    PINECONE_INDEX = os.getenv("PINECONE_INDEX", "sentinel-vendors") 
 
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
