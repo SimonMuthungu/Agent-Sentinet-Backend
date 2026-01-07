@@ -1,2 +1,4 @@
-# Centralized logging configuration
-# TODO: Configure structured logging (e.g., JSON logs) for production
+import logging
+
+logger = logging.getLogger("sentinel")
+logging.basicConfig(level=logging.INFO)

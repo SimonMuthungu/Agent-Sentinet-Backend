@@ -6,6 +6,8 @@ from app.agents.nodes.reasoning import reason_over_context
 from app.agents.nodes.guardrails import guardrail_check
 from app.agents.nodes.synthesis import synthesize_response
 from app.agents.nodes.review import human_review
+from app.persistence.vendor_state import load_latest_vendor_state, persist_vendor_state, record_agent_run
+
 
 def build_graph():
     graph = StateGraph(VendorGraphState)

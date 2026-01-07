@@ -1,3 +1,8 @@
+from app.observability.logger import logger
+
+logger.info("Running retrieval node", extra={"vendor_id": state["vendor_id"]})
+
+
 async def ingest_vendor(state: dict) -> dict:
     """
     Entry node.

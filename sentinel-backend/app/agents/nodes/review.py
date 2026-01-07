@@ -4,3 +4,9 @@ async def human_review(state: dict) -> dict:
     Will trigger only when risk/confidence thresholds require it.
     """
     return {}
+
+def review(state):
+    return {
+        "final_response": "Human review required",
+        "decision": "ESCALATED"
+    }

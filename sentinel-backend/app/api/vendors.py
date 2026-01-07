@@ -1,6 +1,8 @@
 from fastapi import APIRouter
+from app.agents.graph import run_vendor_evaluation
 
 router = APIRouter()
 
-# Placeholder for vendor management endpoints
-# TODO: Implement vendor CRUD operations and risk profile retrieval
+@router.post("/{vendor_id}/evaluate")
+async def evaluate_vendor(vendor_id: str, query: str):
+    return await run_vendor_evaluation(vendor_id, query)
