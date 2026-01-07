@@ -1,14 +1,13 @@
 from fastapi import FastAPI
-from app.config import settings
-from app.api import health, vendors, evaluations, escalations
+from app.api import vendors, evaluations, escalations
+from app.api.health import router as health_router
 
-app = FastAPI(title=settings.app_name)
+app = FastAPI(title="Sentinel Backend")
 
-# Include routers
-app.include_router(health.router, prefix="/api/v1", tags=["Health"])
-app.include_router(vendors.router, prefix="/api/v1/vendors", tags=["Vendors"])
-app.include_router(evaluations.router, prefix="/api/v1/evaluations", tags=["Evaluations"])
-app.include_router(escalations.router, prefix="/api/v1/escalations", tags=["Escalations"])
+app.include_router(health_router)
+app.include_router(vendors.router, prefix="/vendors")
+app.include_router(evaluations.router, prefix="/evaluations")
+app.include_router(escalations.router, prefix="/escalations")
 
 @app.get("/")
 async def root():

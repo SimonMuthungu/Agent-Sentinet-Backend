@@ -1,2 +1,7 @@
-# Data transfer objects (DTOs) and API schemas
-# TODO: Define Pydantic models for request/response validation
+from pydantic import BaseModel
+
+class VendorCreate(BaseModel):
+    name: str
+
+class EvaluationRequest(BaseModel):
+    vendor_id: str

@@ -1,2 +1,6 @@
-# Node for core reasoning and analysis
-# TODO: Implement LLM calls for risk assessment and compliance checking
+async def reason_over_context(state: dict) -> dict:
+    """
+    Placeholder for reasoning logic.
+    For now, it simply passes context through.
+    """
+    return {}

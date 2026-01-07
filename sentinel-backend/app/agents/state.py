@@ -1,2 +1,8 @@
-# Defines the agent state schema
-# TODO: Define TypedDict or Pydantic models for the graph state (messages, context, errors)
+from typing import TypedDict, List
+
+class VendorGraphState(TypedDict):
+    vendor_id: str
+    vendor_name: str
+    retrieved_docs: List[str]
+    final_assessment: str
+    

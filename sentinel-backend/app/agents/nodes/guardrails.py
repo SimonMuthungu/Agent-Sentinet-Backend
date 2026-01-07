@@ -1,2 +1,9 @@
-# Node for safety and policy guardrails
-# TODO: Implement checks to ensure agent outputs comply with safety policies
+async def guardrail_check(state: dict) -> dict:
+    """
+    Enforces basic safety / compliance constraints.
+    Can veto or modify execution later.
+    """
+    if not state["retrieved_docs"]:
+        return {"final_assessment": "Insufficient data to assess vendor risk."}
+
+    return {}

@@ -1,2 +1,6 @@
-# Node for synthesizing results into a final report or response
-# TODO: Format and aggregate findings into a structured output
+from app.services.llm_service import synthesize
+
+async def synthesize_response(state: dict) -> dict:
+    context = "\n".join(state["retrieved_docs"])
+    result = await synthesize(context, state["vendor_name"])
+    return {"final_assessment": result}
