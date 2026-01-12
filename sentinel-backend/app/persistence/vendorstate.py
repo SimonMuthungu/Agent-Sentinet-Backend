@@ -11,7 +11,7 @@ def load_latest_vendor_state(vendor_id: str) -> Dict[str, Any] | None:
     Used so the agent is stateful across runs.
     """
     res = (
-        supabase.table("vendor_states")
+        supabase.table("vendor_state")
         .select("state")
         .eq("vendor_id", vendor_id)
         .order("created_at", desc=True)
@@ -27,7 +27,7 @@ def persist_vendor_state(vendor_id: str, state: Dict[str, Any]):
     """
     Persists updated agent state after a run.
     """
-    supabase.table("vendor_states").insert({
+    supabase.table("vendor_state").insert({
         "vendor_id": vendor_id,
         "state": state
     }).execute()

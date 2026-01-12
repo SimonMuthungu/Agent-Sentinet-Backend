@@ -34,3 +34,11 @@ def resolve_escalation(escalation_id: str):
     ).eq("id", escalation_id).execute()
 
     return {"status": "resolved"}
+
+
+# app/api/escalations.py
+def escalation_router(state: dict) -> str:
+    # Route to human review if escalation is triggered, else proceed to synthesis
+    if state.get("escalate") or state.get("human_review_required"):
+        return "review"
+    return "synthesis"

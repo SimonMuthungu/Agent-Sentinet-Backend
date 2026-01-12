@@ -10,7 +10,7 @@ from app.agents.nodes.synthesis import synthesize_response
 from app.agents.nodes.review import human_review
 from app.api.escalations import escalation_router
 
-def build_graph():
+def build_graph(): # the torso
     graph = StateGraph(VendorGraphState)
 
     graph.add_node("ingest", ingest_vendor)
@@ -31,7 +31,7 @@ def build_graph():
         escalation_router,
         {
             "review": "review",
-            "synthesize": "synthesize",
+            "synthesis": "synthesize",
         }
     )
 

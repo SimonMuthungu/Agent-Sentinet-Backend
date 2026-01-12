@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from app.agents.graph_runner import run_vendor_evaluation
 from app.persistence.db import supabase
 from app.observability.logging import logger
+from app.services.vectorstore import query_vendor
 
 
 router = APIRouter()
@@ -58,4 +59,39 @@ def get_vendor(vendor_id: str):
     return {
         "vendor": vendor.data,
         "documents": docs.data
+    }
+
+
+# @router.post("/{vendor_id}/review")
+# async def review_vendor(vendor_id: str):
+#     initial_state: VendorGraphState = {
+#         "vendor_id": vendor_id,
+#         "vendor_name": get_vendor_name(vendor_id),
+#         "query": "Assess vendor compliance risk",
+#     }
+
+#     contexts = query_vendor(vendor_id, "Assess vendor compliance risk")
+#     result = await run_vendor_evaluation(vendor_id, contexts)
+#     return result
+
+
+@router.post("/{vendor_id}/review")
+async def review_vendor(vendor_id: str):
+    initial_state: VendorGraphState = {
+        "vendor_id": vendor_id,
+        "vendor_name": get_vendor_name(vendor_id),
+        "query": "Assess vendor compliance risk",
+    }
+
+    result_state = await executor.invoke(initial_state)  # LangGraph executor
+    # Return only synthesis + guardrails + review signals
+    return {
+        "vendor_id": vendor_id,
+        "decision": result_state.get("decision"),
+        "confidence": result_state.get("confidence"),
+        "final_assessment": result_state.get("final_assessment"),
+        "recommended_actions": result_state.get("recommended_actions", []),
+        "policy_violations": result_state.get("policy_violations", []),
+        "human_review_required": result_state.get("human_review_required", False),
+        "retrieved_count": len(result_state.get("retrieved_docs", [])),
     }
