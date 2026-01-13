@@ -91,10 +91,22 @@ async def review_vendor(vendor_id: str):
     result_state = await executor.ainvoke(initial_state)  # LangGraph executor
     # Return only synthesis + guardrails + review signals
 
+    supabase.table("vendor_runs").insert({
+        "vendor_id": vendor_id,
+        "decision": result_state.get("decision"),
+        "confidence": result_state.get("confidence"),
+        "final_assessment": result_state.get("final_assessment"),
+        "recommended_actions": result_state.get("recommended_actions", []),
+        "policy_violations": result_state.get("policy_violations", []),
+        "human_review_required": result_state.get("human_review_required", False),
+        "full_state": result_state,  # optional: store everything
+    }).execute()
+
+
     print('Done running the agent, Now returning the result...')
 
     logger.info("Graph final output", extra={"vendor_id": vendor_id, "result_state": result_state})
-    print("Graph final output:", result_state)
+    # print("Graph final output:", result_state)
 
 
     return {
@@ -107,3 +119,15 @@ async def review_vendor(vendor_id: str):
         "human_review_required": result_state.get("human_review_required", False),
         "retrieved_count": len(result_state.get("retrieved_docs", [])),
     }
+
+
+@router.get("/{vendor_id}/reports")
+def list_vendor_runs(vendor_id: str):
+    res = (
+        supabase.table("vendor_runs")
+        .select("*")
+        .eq("vendor_id", vendor_id)
+        .order("run_timestamp", desc=True)
+        .execute()
+    )
+    return res.data
