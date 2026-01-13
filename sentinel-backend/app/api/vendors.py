@@ -3,6 +3,9 @@ from app.agents.graph_runner import run_vendor_evaluation
 from app.persistence.db import supabase
 from app.observability.logging import logger
 from app.services.vectorstore import query_vendor
+from app.agents.state import VendorGraphState
+from app.agents.graph import executor
+
 
 
 router = APIRouter()
@@ -79,12 +82,21 @@ def get_vendor(vendor_id: str):
 async def review_vendor(vendor_id: str):
     initial_state: VendorGraphState = {
         "vendor_id": vendor_id,
-        "vendor_name": get_vendor_name(vendor_id),
+        "vendor_name": get_vendor(vendor_id)["vendor"]["name"],
         "query": "Assess vendor compliance risk",
     }
 
-    result_state = await executor.invoke(initial_state)  # LangGraph executor
+    print('Have received user input, Now running the agent...')
+
+    result_state = await executor.ainvoke(initial_state)  # LangGraph executor
     # Return only synthesis + guardrails + review signals
+
+    print('Done running the agent, Now returning the result...')
+
+    logger.info("Graph final output", extra={"vendor_id": vendor_id, "result_state": result_state})
+    print("Graph final output:", result_state)
+
+
     return {
         "vendor_id": vendor_id,
         "decision": result_state.get("decision"),

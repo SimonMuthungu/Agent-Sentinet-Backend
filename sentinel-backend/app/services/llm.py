@@ -1,5 +1,6 @@
 import google.generativeai as genai
 from app.config.settings import settings
+from app.observability.logging import logger
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
@@ -31,12 +32,34 @@ Context:
 {context}
 
 Return only valid JSON. No prose.
+CRITICAL: Return ONLY valid JSON. Do not include any prose, comments, or explanations.
 """
     # Gemini Python SDK generate_content is sync; call in thread if you need true async
     response = model.generate_content(prompt)
+    logger.info("Gemini raw response", extra={"vendor": vendor_name, "raw": response.text})
+    print("Gemini raw response:", response.text)
+
     # For safety, parse JSON (assume response.text is valid JSON)
-    import json
-    return json.loads(response.text)
+    import json, re
+
+    raw = (response.text or "").strip()               # remove closing ```
+
+    logger.info("Gemini raw response", extra={"raw": raw})
+
+    if not raw:
+        # log and return a safe default
+        logger.error("Gemini returned empty response", extra={"vendor": vendor_name})
+        return {"extracted_risks": [], "framework_mapping": [], "reasoning_notes": ""}
+
+    if raw.startswith("```"):
+        raw = re.sub(r"^```[a-zA-Z0-9]*\n?", "", raw)   # remove opening ```json
+        raw = re.sub(r"\n?```$", "", raw)
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON from Gemini", extra={"raw": raw})
+        return {"extracted_risks": [], "framework_mapping": [], "reasoning_notes": raw}
 
 
 # app/services/llm.py (append)
@@ -70,4 +93,19 @@ Decision policy:
 Confidence reflects evidence density and consistency.
 """
     response = model.generate_content(prompt)
-    return json.loads(response.text)
+    raw = (response.text or "").strip()
+    if not raw:
+        logger.error("Gemini returned empty executive synthesis", extra={"vendor": vendor_name})
+        return {"decision": "REVIEW_REQUIRED", "confidence": 0.0,
+                "summary": "", "recommended_actions": []}
+
+    if raw.startswith("```"):
+        raw = re.sub(r"^```[a-zA-Z0-9]*\n?", "", raw)   # remove opening ```json
+        raw = re.sub(r"\n?```$", "", raw)
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        logger.error("Invalid JSON from Gemini executive synthesis", extra={"raw": raw})
+        return {"decision": "REVIEW_REQUIRED", "confidence": 0.0,
+                "summary": raw, "recommended_actions": []}
