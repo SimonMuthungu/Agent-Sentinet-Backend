@@ -5,14 +5,16 @@ router = APIRouter()
 
 
 @router.get("/")
-def audit_log():
+def list_audit_logs():
     """
-    Immutable history of agent decisions.
+    Returns all audit logs with full details.
     """
-    return (
-        supabase.table("agent_runs")
-        .select("*")
+    res = (
+        supabase
+        .table("audit_log")
+        .select("id, vendor_id, trigger, decision, confidence, created_at")
         .order("created_at", desc=True)
         .execute()
-        .data
     )
+    return res.data
+

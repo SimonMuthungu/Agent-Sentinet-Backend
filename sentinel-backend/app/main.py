@@ -3,11 +3,19 @@ from app.api import vendors, evaluations, escalations, audit, dashboard, uploads
 from app.api.health import router as health_router
 from app.services.scheduler import start_scheduler
 from app.api.debug import router as debug_router
+from app.observability.logging import logger
+from app.observability.metrics import start_metrics_server
+from app.observability.tracing import tracer
+
 
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app = FastAPI(title="Sentinel Backend")
+
+
+start_metrics_server(9000)
+logger.info("Observability initialized")
+
 
 app.add_middleware(
     CORSMiddleware,

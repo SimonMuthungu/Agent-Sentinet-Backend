@@ -15,9 +15,11 @@ def list_open_escalations():
     """
     res = (
         supabase
-        .table("vendor_state")
-        .select("vendor_id, state, created_at")
-        .contains("state", {"escalate": True})
+        .table("escalations")
+        .select(
+            "id, vendor_id, run_id, decision, confidence, final_assessment, recommended_actions, policy_violations, status, created_at"
+        )
+        .eq("status", "open")
         .order("created_at", desc=True)
         .execute()
     )
