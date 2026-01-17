@@ -7,8 +7,12 @@ from app.observability.logging import logger
 from app.observability.metrics import start_metrics_server
 from app.observability.tracing import tracer
 
-
 from fastapi.middleware.cors import CORSMiddleware
+
+
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = FastAPI(title="Sentinel Backend")
 
